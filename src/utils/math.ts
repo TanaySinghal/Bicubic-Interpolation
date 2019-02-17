@@ -15,6 +15,14 @@ export type Matrix<T> = {
   height: number;
 };
 
+export function matrixMap<T, U>(m: Matrix<T>, mapFn: (x: T) => U): Matrix<U> {
+  return {
+    data: m.data.map((row) => row.map((v) => mapFn(v))),
+    width: m.width,
+    height: m.height,
+  };
+}
+
 export function clamp(val: number, min: number, max: number) {
   return Math.max(Math.min(val, max), min);
 }

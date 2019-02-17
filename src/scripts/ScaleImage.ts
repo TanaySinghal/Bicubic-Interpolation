@@ -1,5 +1,7 @@
 import { bicubicInterpolation } from './Bicubic';
-import { Vec2, Matrix } from '../utils/math';
+import { Matrix, matrixMap } from '../utils/math';
+
+type ImagePixels = Uint8ClampedArray;
 
 export function scaleImage(url: string, scaleFactor: number) {
   const promise = loadImage(url);
@@ -15,7 +17,7 @@ function imgToMatrix(img: HTMLImageElement) {
   const context = canvas.getContext('2d') as CanvasRenderingContext2D;
   context.drawImage(img, 0, 0);
 
-  const matrix: Matrix<Vec2> = {
+  const matrix: Matrix<ImagePixels> = {
     data: [],
     width: img.width,
     height: img.height,
@@ -23,16 +25,15 @@ function imgToMatrix(img: HTMLImageElement) {
   for (let i = 0; i < img.height; ++i) {
     matrix.data[i] = [];
     for (let j = 0; j < img.width; ++j) {
-      const data: Uint8ClampedArray = context.getImageData(i, j, 1, 1).data;
-      data[0] = 0; // no red
+      const data = context.getImageData(i, j, 1, 1).data.slice();
       context.putImageData(new ImageData(data, 1, 1), i, j);
-      matrix.data[i][j] = { x: data[1], y: data[2] };
+      matrix.data[i][j] = data;
     }
   }
   return matrix;
 }
 
-function matrixToImg(matrix: Matrix<Vec2>, scaleFactor = 1) {
+function matrixToImg(matrix: Matrix<ImagePixels>, scaleFactor = 1) {
   const w = matrix.width;
   const h = matrix.height;
 
@@ -40,16 +41,19 @@ function matrixToImg(matrix: Matrix<Vec2>, scaleFactor = 1) {
   const context = canvas.getContext('2d') as CanvasRenderingContext2D;
   const imgData = context.createImageData(w * scaleFactor, h * scaleFactor);
 
+  const matrixR = matrixMap(matrix, (v) => v[0]);
+  const matrixG = matrixMap(matrix, (v) => v[1]);
+  const matrixB = matrixMap(matrix, (v) => v[2]);
+
   for (let i = 0; i < h * scaleFactor; ++i) {
     for (let j = 0; j < w * scaleFactor; ++j) {
       const oldI = i / scaleFactor;
       const oldJ = j / scaleFactor;
 
-      const val = bicubicInterpolation(matrix, oldJ, oldI);
       const arrI = 4 * (j * h * scaleFactor + i);
-      imgData.data[arrI] = 0;
-      imgData.data[arrI + 1] = val.x;
-      imgData.data[arrI + 2] = val.y;
+      imgData.data[arrI] = bicubicInterpolation(matrixR, oldJ, oldI);
+      imgData.data[arrI + 1] = bicubicInterpolation(matrixG, oldJ, oldI);
+      imgData.data[arrI + 2] = bicubicInterpolation(matrixB, oldJ, oldI);
       imgData.data[arrI + 3] = 255;
     }
   }

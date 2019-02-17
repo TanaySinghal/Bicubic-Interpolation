@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { scaleImage } from '../scripts/ScaleImg';
+import { scaleImage } from '../scripts/ScaleImage';
 import img from '../assets/man.png';
 
 const SCALE_FACTOR = 10;
