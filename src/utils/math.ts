@@ -3,12 +3,6 @@ export type Vec2 = {
   y: number;
 };
 
-export type Vec3 = {
-  x: number;
-  y: number;
-  z: number;
-};
-
 export type Matrix<T> = {
   data: T[][];
   width: number;
@@ -32,11 +26,8 @@ export function map(value: number, inMin: number, inMax: number, outMin: number,
   return clamp(result, outMin, outMax);
 }
 
-export function add(u: Vec2, v: Vec2) {
-  return {
-    x: u.x + v.x,
-    y: u.y + v.y,
-  };
+export function add(...args: Vec2[]) {
+  return args.reduce((sum: Vec2, curr: Vec2) => ({ x: sum.x + curr.x, y: sum.y + curr.y }));
 }
 
 export function mult(v: Vec2, c: number) {

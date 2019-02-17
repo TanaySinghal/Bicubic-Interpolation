@@ -24,8 +24,10 @@ export function subdivide(data: Matrix<Vec2>) {
     for (let j = 1; j < img.width - 1; j += 2) {
       img.data[i][j] = mult(
         add(
-          add(img.data[i - 1][j - 1], img.data[i - 1][j + 1]),
-          add(img.data[i + 1][j - 1], img.data[i + 1][j + 1])
+          img.data[i - 1][j - 1],
+          img.data[i - 1][j + 1],
+          img.data[i + 1][j - 1],
+          img.data[i + 1][j + 1]
         ),
         0.25
       );
@@ -40,10 +42,7 @@ export function subdivide(data: Matrix<Vec2>) {
           img.data[i][j] = mult(add(img.data[i][j - 1], img.data[i][j + 1]), 0.5);
         } else {
           img.data[i][j] = mult(
-            add(
-              add(img.data[i][j - 1], img.data[i][j + 1]),
-              add(img.data[i - 1][j], img.data[i + 1][j])
-            ),
+            add(img.data[i][j - 1], img.data[i][j + 1], img.data[i - 1][j], img.data[i + 1][j]),
             0.25
           );
         }
@@ -52,10 +51,7 @@ export function subdivide(data: Matrix<Vec2>) {
           img.data[i][j] = mult(add(img.data[i - 1][j], img.data[i + 1][j]), 0.5);
         } else {
           img.data[i][j] = mult(
-            add(
-              add(img.data[i][j - 1], img.data[i][j + 1]),
-              add(img.data[i - 1][j], img.data[i + 1][j])
-            ),
+            add(img.data[i][j - 1], img.data[i][j + 1], img.data[i - 1][j], img.data[i + 1][j]),
             0.25
           );
         }
